@@ -4,6 +4,8 @@ const app = express();
 const cors = require('cors');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
+app.use(express.json());
+app.use(cors());
 
 /**
  * database configuration
@@ -27,11 +29,27 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    app.get('/login', async(req, res) => {
+        const mobileEmail = req.query.mobileEmail;
+        const password = req.query.password;
+        const existingUser = await usersCollection.findOne({mobileEmail: mobileEmail})
+        console.log(existingUser)
+
+        if(existingUser?.password!== password){
+          res.send({failed: true, message:"Email and Password doesn't match"})
+        }else{
+          res.send(existingUser);
+        }
+    })
     app.post('/signup', async(req, res) => {
         const user = req.body;
-        console.log(user)
-        // const result = await usersCollection.insertOne(user);
-        // res.send(result);
+        const existingUser = await usersCollection.findOne({mobileEmail: user.mobileEmail})
+        if(existingUser){
+          res.send({failed: true, message:"User already exists"})
+        }else{
+          const result = await usersCollection.insertOne(user);
+          res.send(result);
+        }
     })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
