@@ -33,7 +33,7 @@ async function run() {
         const mobileEmail = req.query.mobileEmail;
         const password = req.query.password;
         const existingUser = await usersCollection.findOne({mobileEmail: mobileEmail})
-        console.log(existingUser)
+        // console.log(existingUser)
 
         if(existingUser?.password!== password){
           res.send({failed: true, message:"Email and Password doesn't match"})
